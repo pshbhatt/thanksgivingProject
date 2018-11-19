@@ -2,8 +2,11 @@ package com.learn.project.thanksgiving.Controller;
 
 import com.learn.project.thanksgiving.Entity.Item;
 import com.learn.project.thanksgiving.Repository.GameRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.ws.rs.core.Response;
 
 @RestController
 public class GameController {
@@ -17,12 +20,12 @@ public class GameController {
     }
 
     @DeleteMapping("/object/delete/Game/{id}")
-    public boolean deleteGame(@PathVariable int id){
-        if (!repo.existsById((long)id)) {
-            throw new RuntimeException();
+    public String deleteGame(@PathVariable Long id){
+        if (!repo.existsById(id)) {
+            return "404";
         }
-        this.repo.deleteById((long)id);
-        return true;
+        this.repo.deleteById(id);
+        return "200";
 
     }
 

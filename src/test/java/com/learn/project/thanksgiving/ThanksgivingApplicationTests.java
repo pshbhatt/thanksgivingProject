@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,8 +74,6 @@ public class ThanksgivingApplicationTests {
     @Test
     public void test_deleteGame() throws Exception {
 
-        Item item = new Item();
-        item.setId(1);
         when(gameRepo.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -84,6 +83,22 @@ public class ThanksgivingApplicationTests {
 
         verify(gameRepo, times(1)).existsById(1L);
         verify(gameRepo, times(1)).deleteById(1L);
+        verifyNoMoreInteractions(gameRepo);
+
+    }
+
+    @Test
+    public void test_invalidDeleteGame() throws Exception {
+
+        when(gameRepo.existsById(10L)).thenReturn(false);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete("/object/delete/Game/10"))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        verify(gameRepo, times(1)).existsById(10L);
+        verify(gameRepo, times(0)).deleteById(10L);
         verifyNoMoreInteractions(gameRepo);
 
     }
