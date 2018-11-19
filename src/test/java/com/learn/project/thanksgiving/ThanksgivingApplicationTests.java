@@ -51,7 +51,7 @@ public class ThanksgivingApplicationTests {
 
 		games = Arrays.asList(new Item(1, "Sword"),
 				new Item(2, "Dagger"),
-				new Item(3, "Smith&Weston"));
+				new Item(3, "Pistol"));
 	}
 
 	@Test
@@ -99,7 +99,7 @@ public class ThanksgivingApplicationTests {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .delete("/object/delete/Game/10"))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andDo(print());
 
         verify(gameRepo, times(1)).existsById(10L);
@@ -110,18 +110,38 @@ public class ThanksgivingApplicationTests {
 
     @Test
     public void test_getGame() throws Exception {
-        when(gameRepo.findById(anyLong()))
-                .thenReturn(Optional.of(games.get(0)));
-
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/1"))
+        when(gameRepo.findById(3L))
+                .thenReturn(Optional.of(games.get(2)));
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/3"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.name", instanceOf(String.class)))
                 .andExpect(jsonPath("$.*", hasSize(2)));
 
-        verify(gameRepo, times(1)).findById(1L);
+        verify(gameRepo, times(1)).findById(3L);
         verifyNoMoreInteractions(gameRepo);
+    }
+
+    @Test
+    public void test_getInvalidGame() throws Exception {
+        when(gameRepo.findById(anyLong()))
+                .thenReturn(null);
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/10"))
+                .andExpect(status().isNotFound());
+        verify(gameRepo, times(0)).findById(1L);
+    }
+
+    @Test
+    public void test_getAllGames() throws Exception{
+        when(gameRepo.findAll()).thenReturn(games);
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$", hasSize(3)));
+
+        verify(gameRepo, times(1)).findAll();
+        verifyNoMoreInteractions(gameRepo);
+
     }
 
 }
