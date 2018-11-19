@@ -18,10 +18,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -101,6 +106,22 @@ public class ThanksgivingApplicationTests {
         verify(gameRepo, times(0)).deleteById(10L);
         verifyNoMoreInteractions(gameRepo);
 
+    }
+
+    @Test
+    public void test_getGame() throws Exception {
+        when(gameRepo.findById(anyLong()))
+                .thenReturn(Optional.of(games.get(0)));
+
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", instanceOf(String.class)))
+                .andExpect(jsonPath("$.*", hasSize(2)));
+
+        verify(gameRepo, times(1)).findById(1L);
+        verifyNoMoreInteractions(gameRepo);
     }
 
 }

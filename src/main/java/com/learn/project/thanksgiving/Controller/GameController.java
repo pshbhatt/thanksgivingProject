@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @RestController
 public class GameController {
@@ -27,6 +28,11 @@ public class GameController {
         this.repo.deleteById(id);
         return "200";
 
+    }
+
+    @GetMapping("/object/get/Game/{id}")
+    public Optional<Item> getGame(@PathVariable Long id){
+        return this.repo.findById(id);
     }
 
 }
