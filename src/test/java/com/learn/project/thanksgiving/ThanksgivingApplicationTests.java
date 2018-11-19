@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -68,5 +69,23 @@ public class ThanksgivingApplicationTests {
 		verify(gameRepo, times(1)).save(isA(Item.class));
 		verifyNoMoreInteractions(gameRepo);
 	}
+
+    @Test
+    public void test_deleteGame() throws Exception {
+
+        Item item = new Item();
+        item.setId(1);
+        when(gameRepo.existsById(1L)).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete("/object/delete/Game/1"))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        verify(gameRepo, times(1)).existsById(1L);
+        verify(gameRepo, times(1)).deleteById(1L);
+        verifyNoMoreInteractions(gameRepo);
+
+    }
 
 }

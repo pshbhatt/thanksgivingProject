@@ -16,4 +16,14 @@ public class GameController {
         return this.repo.save(item);
     }
 
+    @DeleteMapping("/object/delete/Game/{id}")
+    public boolean deleteGame(@PathVariable int id){
+        if (!repo.existsById((long)id)) {
+            throw new RuntimeException();
+        }
+        this.repo.deleteById((long)id);
+        return true;
+
+    }
+
 }
