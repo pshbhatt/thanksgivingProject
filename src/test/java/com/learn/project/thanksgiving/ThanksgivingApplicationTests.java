@@ -1,6 +1,7 @@
 package com.learn.project.thanksgiving;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learn.project.thanksgiving.Entity.GameCharacter;
 import com.learn.project.thanksgiving.Entity.Item;
 import com.learn.project.thanksgiving.Entity.Registry;
 import com.learn.project.thanksgiving.Repository.GameRepository;
@@ -53,9 +54,9 @@ public class ThanksgivingApplicationTests {
 	@Before
 	public void setup() {
 
-		games = Arrays.asList(new Registry("Game", "{1,Sword}"),
+		/*games = Arrays.asList(new Registry("Game", "{1,Sword}"),
 				new Registry("Game1", "{2,Dagger}"),
-				new Registry("Game2", "{3,Pistol}"));
+				new Registry("Game2", "{3,Pistol}"));*/
 	}
 
 	@Test
@@ -189,6 +190,26 @@ public class ThanksgivingApplicationTests {
 
         verify(gameRepo, times(1)).findAll();
         verifyNoMoreInteractions(gameRepo);
+
+    }
+
+    @Test
+    public void test_getCharacters() throws Exception{
+        GameCharacter charchar = new GameCharacter();
+        Item item = new Item();
+        String charjson = mapper.writeValueAsString(charchar);
+        String json = mapper.writeValueAsString(item);
+        Registry reg = new Registry();
+        reg.setItem(json);
+        reg.setGameCharacter(charjson);
+        when(gameRepo.save(reg))
+                .thenReturn(reg);
+        mockMvc.perform(MockMvcRequestBuilders.post("/object/create/Game")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
+
+        verify(gameRepo, times(1)).save(isA(Registry.class));
 
     }
 

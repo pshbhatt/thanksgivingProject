@@ -7,14 +7,16 @@ public class Registry {
     @Id
     private String className;
     String item;
+    private String gameCharacter;
 
     public Registry(){
 
     }
 
-    public Registry(String className, String item) {
+    public Registry(String className, String item, String gameCharacter) {
         this.className = className;
         this.item = item;
+        this.gameCharacter = gameCharacter;
     }
 
     public String getClassName() {
@@ -31,5 +33,13 @@ public class Registry {
 
     public void setItem(String item) {
         this.item = item;
+    }
+
+    public String getGameCharacter() {
+        return gameCharacter;
+    }
+
+    public void setGameCharacter(String gameCharacter) {
+        this.gameCharacter = gameCharacter;
     }
 }
