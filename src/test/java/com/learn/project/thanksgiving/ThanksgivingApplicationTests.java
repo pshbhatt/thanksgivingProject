@@ -2,20 +2,24 @@ package com.learn.project.thanksgiving;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learn.project.thanksgiving.Entity.Item;
+import com.learn.project.thanksgiving.Entity.Registry;
 import com.learn.project.thanksgiving.Repository.GameRepository;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +48,14 @@ public class ThanksgivingApplicationTests {
 	@MockBean
 	GameRepository gameRepo;
 
-	List<Item> games;
+	List<Registry> games;
 
 	@Before
 	public void setup() {
 
-		games = Arrays.asList(new Item(1, "Sword"),
-				new Item(2, "Dagger"),
-				new Item(3, "Pistol"));
+		games = Arrays.asList(new Registry("Game", "{1,Sword}"),
+				new Registry("Game1", "{2,Dagger}"),
+				new Registry("Game2", "{3,Pistol}"));
 	}
 
 	@Test
@@ -60,10 +64,10 @@ public class ThanksgivingApplicationTests {
 
 	@Test
 	public void test_addGame() throws Exception {
-
-		Item item =  new Item(1, "Sword");
-		when(gameRepo.save(item))
-				.thenReturn(item);
+	    Item item =  new Item(1, "Sword");
+		Registry registry = new Registry();
+		when(gameRepo.save(registry))
+				.thenReturn(registry);
 
 		String json = mapper.writeValueAsString(item);
 		System.out.println(json);
@@ -72,22 +76,28 @@ public class ThanksgivingApplicationTests {
 				.content(json))
 				.andExpect(status().isOk());
 
-		verify(gameRepo, times(1)).save(isA(Item.class));
-		verifyNoMoreInteractions(gameRepo);
+		verify(gameRepo, times(1)).save(isA(Registry.class));
+
 	}
 
     @Test
     public void test_deleteGame() throws Exception {
-
-        when(gameRepo.existsById(1L)).thenReturn(true);
+        Registry registry = new Registry();
+        registry.setClassName("Game");
+        Item item = new Item();
+        item.setName("Sword");
+        item.setId(1);
+        String json = mapper.writeValueAsString(item);
+        registry.setItem(json);
+        when(gameRepo.findByClassName("Game")).thenReturn(registry);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .delete("/object/delete/Game/1"))
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(gameRepo, times(1)).existsById(1L);
-        verify(gameRepo, times(1)).deleteById(1L);
+        verify(gameRepo, times(1)).findByClassName("Game");
+        verify(gameRepo, times(1)).delete(registry);
         verifyNoMoreInteractions(gameRepo);
 
     }
@@ -95,49 +105,87 @@ public class ThanksgivingApplicationTests {
     @Test
     public void test_invalidDeleteGame() throws Exception {
 
-        when(gameRepo.existsById(10L)).thenReturn(false);
+        Registry registry = new Registry();
+        registry.setClassName("Game1");
+        Item item = new Item();
+        item.setName("Sword");
+        item.setId(1);
+        String json = mapper.writeValueAsString(item);
+        registry.setItem(json);
+        when(gameRepo.findByClassName("Game")).thenReturn(registry);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .delete("/object/delete/Game/10"))
+                .delete("/object/delete/Game/3"))
                 .andExpect(status().isNotFound())
                 .andDo(print());
 
-        verify(gameRepo, times(1)).existsById(10L);
-        verify(gameRepo, times(0)).deleteById(10L);
+        verify(gameRepo, times(1)).findByClassName("Game");
+        verify(gameRepo, times(0)).delete(registry);
         verifyNoMoreInteractions(gameRepo);
 
     }
 
     @Test
+
     public void test_getGame() throws Exception {
-        when(gameRepo.findById(3L))
-                .thenReturn(Optional.of(games.get(2)));
-        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/3"))
+        Registry registry = new Registry();
+        registry.setClassName("Game1");
+        Item item = new Item();
+        item.setName("Sword");
+        item.setId(1);
+        String json = mapper.writeValueAsString(item);
+        registry.setItem(json);
+	    when(gameRepo.findByClassName("Game1"))
+                .thenReturn(registry);
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game1/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.name", instanceOf(String.class)))
+                .andExpect(jsonPath("$.className", instanceOf(String.class)))
                 .andExpect(jsonPath("$.*", hasSize(2)));
 
-        verify(gameRepo, times(1)).findById(3L);
+        verify(gameRepo, times(1)).findByClassName("Game1");
         verifyNoMoreInteractions(gameRepo);
     }
 
+
     @Test
-    public void test_getInvalidGame() throws Exception {
-        when(gameRepo.findById(anyLong()))
-                .thenReturn(null);
-        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game/10"))
-                .andExpect(status().isNotFound());
-        verify(gameRepo, times(0)).findById(1L);
+    public void test_getAllGamesByClass() throws Exception{
+        Registry registry = new Registry();
+        registry.setClassName("Game1");
+        Item item = new Item();
+        item.setName("Sword");
+        item.setId(1);
+        String json = mapper.writeValueAsString(item);
+        registry.setItem(json);
+	    when(gameRepo.findByClassName("Game1")).thenReturn(registry);
+        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+                //.andExpect(jsonPath("$", hasSize(3)));
+
+        verify(gameRepo, times(1)).findByClassName("Game1");
+        verifyNoMoreInteractions(gameRepo);
+
     }
 
     @Test
     public void test_getAllGames() throws Exception{
-        when(gameRepo.findAll()).thenReturn(games);
-        mockMvc.perform(MockMvcRequestBuilders.get("/object/get/Game"))
+        List<Registry> regList = new ArrayList<>();
+        Registry registry = new Registry();
+        registry.setClassName("Game1");
+        Item item = new Item();
+        item.setName("Sword");
+        item.setId(1);
+        String json = mapper.writeValueAsString(item);
+        registry.setItem(json);
+        regList.add(registry);
+	    when(gameRepo.findAll()).thenReturn(regList);
+       mockMvc.perform(MockMvcRequestBuilders.get("/object/get"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(3)));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+                //.andExpect(jsonPath("$", hasSize(3)));
 
         verify(gameRepo, times(1)).findAll();
         verifyNoMoreInteractions(gameRepo);
