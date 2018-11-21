@@ -274,4 +274,31 @@ public class ThanksgivingApplicationTests {
 
     }
 
+    @Test
+    public void test_deleteInventory() throws Exception{
+        GameCharacter charchar = new GameCharacter();
+        Registry registry = new Registry();
+        registry.setClassName("Game");
+        charchar.setId(1L);
+        charchar.setLocation(5);
+        Room room  = new Room();
+        room.setId(5L);
+        Integer[] arr = new Integer[3];
+        arr[0]=1;
+        arr[1]=2;
+        arr[2] = 3;
+        room.setExits(arr);
+        when(charRepo.findById(1L))
+                .thenReturn(Optional.of(charchar));
+        when(gameRepo.findByClassName("Game")).thenReturn(registry);
+        String json = mapper.writeValueAsString(registry);
+        mockMvc.perform(MockMvcRequestBuilders.post("/inventory/drop/1/Game")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
+
+        verify(charRepo, times(1)).save(isA(GameCharacter.class));
+
+    }
+
 }
