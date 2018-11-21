@@ -301,4 +301,26 @@ public class ThanksgivingApplicationTests {
 
     }
 
+    @Test
+    public void test_attack() throws Exception{
+        GameCharacter charchar1 = new GameCharacter();
+        GameCharacter charchar2 = new GameCharacter();
+        charchar1.setId(1L);
+        charchar1.setHitPoints(10);
+        charchar2.setId(2L);
+        charchar2.setHitPoints(15);
+        when(charRepo.findById(1L))
+                .thenReturn(Optional.of(charchar1));
+        when(charRepo.findById(2L))
+                .thenReturn(Optional.of(charchar2));
+        String json = mapper.writeValueAsString(charchar1);
+        mockMvc.perform(MockMvcRequestBuilders.post("/battle/1/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
+
+        verify(charRepo, times(1)).save(isA(GameCharacter.class));
+
+    }
+
 }
