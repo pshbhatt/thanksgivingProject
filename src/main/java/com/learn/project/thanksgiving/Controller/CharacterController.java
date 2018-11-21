@@ -53,7 +53,7 @@ public class CharacterController {
         character.setInventory(new String[0]);
         character.setCon(valuesList.get(1));
         character.setHitPoints(character.getCon()*2);
-        character.setLocation(4);
+        character.setLocation(2);
         character.setWisdom(valuesList.get(2));
         HttpStatus status;
         if(klass.equals("Warrior")){
@@ -96,6 +96,7 @@ public class CharacterController {
             status = HttpStatus.NOT_FOUND;
         }
         gameRepo.save(registry);
+        charRepo.save(character);
         return new ResponseEntity<GameCharacter>(character,status);
 
     }

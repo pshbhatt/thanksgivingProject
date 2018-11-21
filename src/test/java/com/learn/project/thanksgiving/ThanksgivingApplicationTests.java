@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learn.project.thanksgiving.Entity.GameCharacter;
 import com.learn.project.thanksgiving.Entity.Item;
 import com.learn.project.thanksgiving.Entity.Registry;
+import com.learn.project.thanksgiving.Entity.Room;
+import com.learn.project.thanksgiving.Repository.CharacterRepository;
 import com.learn.project.thanksgiving.Repository.GameRepository;
+import com.learn.project.thanksgiving.Repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,6 +51,12 @@ public class ThanksgivingApplicationTests {
 
 	@MockBean
 	GameRepository gameRepo;
+
+    @MockBean
+    CharacterRepository charRepo;
+
+    @MockBean
+    RoomRepository roomRepo;
 
 	List<Registry> games;
 
@@ -210,6 +219,27 @@ public class ThanksgivingApplicationTests {
                 .andExpect(status().isOk());
 
         verify(gameRepo, times(1)).save(isA(Registry.class));
+
+    }
+
+    @Test
+    public void test_moveRoom() throws Exception{
+        GameCharacter charchar = new GameCharacter();
+        charchar.setId(1);
+        charchar.setLocation(5);
+        Room room  = new Room();
+        room.setId(5L);
+        int[] arr = new int []{1,2,3};
+        room.setExits(arr);
+        when(charRepo.save(charchar))
+                .thenReturn(charchar);
+        String json = mapper.writeValueAsString(charchar);
+        mockMvc.perform(MockMvcRequestBuilders.post("/move/1/to/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
+
+        verify(charRepo, times(1)).save(isA(GameCharacter.class));
 
     }
 
