@@ -8,7 +8,7 @@ import javax.persistence.Id;
 @Entity
 public class Room {
 
-    public Room(Long id, String name, String description, int[] exits) {
+    public Room(Long id, String name, String description, Integer[] exits) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -24,7 +24,7 @@ public class Room {
     private Long id;
     private String name;
     private String description;
-    private int[] exits;
+    private Integer[] exits;
 
     public Long getId() {
         return id;
@@ -50,11 +50,11 @@ public class Room {
         this.description = description;
     }
 
-    public int[] getExits() {
+    public Integer[] getExits() {
         return exits;
     }
 
-    public void setExits(int[] exits) {
+    public void setExits(Integer[] exits) {
         this.exits = exits;
     }
 }

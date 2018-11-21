@@ -40,23 +40,19 @@ public class RoomController {
     }
 
     @PostMapping("/move/{charId}/to/{roomId}")
-    public ResponseEntity<GameCharacter> moveToRoom(@PathVariable int charId, @PathVariable int roomId){
-    System.out.println("CHARACTER ID::" + charId);
-    System.out.println("ROOM ID::" + roomId);
+    public ResponseEntity<GameCharacter> moveToRoom(@PathVariable Long charId, @PathVariable int roomId){
         //Make sure that when a char is created in the JSON, the id increases
-        Optional<GameCharacter> gameChar = charRepo.findById((long)charId);
+        Optional<GameCharacter> gameChar = charRepo.findById(charId);
         //CHeck the charId passed and see the location
-        System.out.println("RESULTING LOCATION::::" + gameChar.get().getLocation());
-        System.out.println("RESULTING CLASS::::" + gameChar.get().getKlass());
         //Match the location to the roomId, if it matches, then check where it is trying to move
         Optional<Room> room  = roomRepo.findById((long)gameChar.get().getLocation());
-        System.out.println("RESULTING ROOM exists::::" + room.get().getExits().toString());
-        List exitsList = Arrays.asList(room.get().getExits());
-        if(exitsList.contains(roomId)){
+
+        Integer[] arr= room.get().getExits();
+        if(Arrays.asList(arr).contains(roomId)){
             gameChar.get().setLocation(roomId);
             charRepo.save(gameChar.get());
             return new ResponseEntity<GameCharacter>(gameChar.get(), HttpStatus.OK);
-        } else if(!exitsList.contains(roomId)){
+        } else if(!Arrays.asList(arr).contains(roomId)){
             return new ResponseEntity<GameCharacter>(gameChar.get(), HttpStatus.FORBIDDEN);
         } else{
             return new ResponseEntity<GameCharacter>(gameChar.get(), HttpStatus.UNAUTHORIZED);

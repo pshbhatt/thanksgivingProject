@@ -225,16 +225,47 @@ public class ThanksgivingApplicationTests {
     @Test
     public void test_moveRoom() throws Exception{
         GameCharacter charchar = new GameCharacter();
-        charchar.setId(1);
+        charchar.setId(1L);
         charchar.setLocation(5);
         Room room  = new Room();
         room.setId(5L);
-        int[] arr = new int []{1,2,3};
+        Integer[] arr = new Integer[3];
+        arr[0]=1;
+        arr[1]=2;
+        arr[2] = 3;
         room.setExits(arr);
-        when(charRepo.save(charchar))
-                .thenReturn(charchar);
+        when(charRepo.findById(1L))
+                .thenReturn(Optional.of(charchar));
+        when(roomRepo.findById(5L)).thenReturn(Optional.of(room));
         String json = mapper.writeValueAsString(charchar);
-        mockMvc.perform(MockMvcRequestBuilders.post("/move/1/to/5")
+        mockMvc.perform(MockMvcRequestBuilders.post("/move/1/to/3")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
+
+        verify(charRepo, times(1)).save(isA(GameCharacter.class));
+
+    }
+
+    @Test
+    public void test_addInventory() throws Exception{
+        GameCharacter charchar = new GameCharacter();
+        Registry registry = new Registry();
+        registry.setClassName("Game");
+        charchar.setId(1L);
+        charchar.setLocation(5);
+        Room room  = new Room();
+        room.setId(5L);
+        Integer[] arr = new Integer[3];
+        arr[0]=1;
+        arr[1]=2;
+        arr[2] = 3;
+        room.setExits(arr);
+        when(charRepo.findById(1L))
+                .thenReturn(Optional.of(charchar));
+        when(gameRepo.findByClassName("Game")).thenReturn(registry);
+        String json = mapper.writeValueAsString(registry);
+        mockMvc.perform(MockMvcRequestBuilders.post("/inventory/pickup/1/Game")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());

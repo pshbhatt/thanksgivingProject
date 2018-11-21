@@ -12,7 +12,7 @@ import javax.persistence.Id;
 @JsonPropertyOrder({ "id", "name", "klass","intelligence","wisdom","charchar","strength", "dexterity", "con", "location", "inventory","hitPoints"})
 public class GameCharacter {
 
-    public GameCharacter(int id, String name, String klass, int intelligence, int wisdom, int charchar, int strength, int dexterity, int con, int location, String[] inventory, int hitPoints) {
+    public GameCharacter(Long id, String name, String klass, int intelligence, int wisdom, int charchar, int strength, int dexterity, int con, int location, String[] inventory, int hitPoints) {
         this.id = id;
         this.name = name;
         this.klass = klass;
@@ -33,7 +33,7 @@ public class GameCharacter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String name;
     @JsonProperty("class")
     private String klass;
@@ -52,11 +52,11 @@ public class GameCharacter {
     private String[] inventory;
     private int hitPoints;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
